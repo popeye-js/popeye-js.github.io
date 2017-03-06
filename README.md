@@ -5,7 +5,13 @@ Popeye voice controls.
 
 ## Installation
 
-To install the [Node](https://nodejs.org/) dependencies:
+First, clone this git repository:
+
+```sh
+git@github.com:popeye-js/popeye-js.github.io.git
+```
+
+Then, install the [Node](https://nodejs.org/) dependencies:
 
 ```sh
 npm install
