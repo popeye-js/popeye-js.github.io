@@ -8,7 +8,7 @@ Popeye voice controls.
 First, clone this git repository:
 
 ```sh
-git@github.com:popeye-js/popeye-js.github.io.git
+git clone git@github.com:popeye-js/popeye-js.github.io.git
 ```
 
 Then, install the [Node](https://nodejs.org/) dependencies:
