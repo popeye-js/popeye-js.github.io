@@ -6,11 +6,11 @@
 
 html,
 body {
-  background-color: #f9f4de;
   height: 100%;
 }
 
 html {
+  background-color: ivory;
   font-size: 14px;
 }
 
@@ -47,9 +47,9 @@ body {
 }
 
 .site-title a:before {
-  background: #83c7b7;
+  background: lightseagreen;
   border-radius: 50%;
-  border: 2px solid #5b453b;
+  border: 2px solid rgba(255,255,255,.5);
   content: "";
   display: inline-block;
   height: 50px;
@@ -73,9 +73,8 @@ body {
   width: 50px;
 }
 
-
 .content {
-  padding-top: 4.5rem;
+  padding: 3rem 0 4.5rem;
 }
 
 .command-logs {
@@ -87,6 +86,10 @@ body {
   padding: 2rem 0;
 }
 
+.command-logs li {
+  overflow-x: auto;
+}
+
 .command-logs:empty {
   display: none;
 }
@@ -95,4 +98,68 @@ body {
   border-top: 1px solid rgba(0,0,0,.25);
   margin-top: 2rem;
   padding-top: 2rem;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+p,
+dl,
+ol,
+ul {
+  margin-top: 1.5rem;
+}
+
+.btn {
+  font-size: 1.5rem;
+  text-decoration: none;
+}
+
+.btn {
+  background: #fff;
+  border: 3px solid #333;
+  box-shadow: #666 1px 1px 0 0, #777 2px 2px 0 0, #888 3px 3px 0 0, #999 4px 4px 0 0, #aaa 5px 5px 0 0;
+  color: #333;
+  cursor: pointer;
+  display: inline-block;
+  letter-spacing: .2ch;
+  margin-bottom: 15px;
+  padding: 0.25em 0.75em;
+  position: relative;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: .15s border-color ease-in-out, .15s box-shadow ease-in-out, .15s left ease-in-out, .15s top ease-in-out;
+}
+
+.btn:active {
+  border-color: #aaa;
+  box-shadow: 0;
+  left: 5px;
+  top: 5px;
+}
+
+.log-in-btn {
+  border-color: #00bc52;
+  box-shadow: #67ffa9 1px 1px 0 0, #78ffb3 2px 2px 0 0, #89ffbc 3px 3px 0 0, #9affc6 4px 4px 0 0, #abffcf 5px 5px 0 0;
+  color: #005625;
+}
+
+.log-in-btn:hover {
+  border-color: #009a43;
+  box-shadow: #89ffbc 1px 1px 0 0, #9affc6 2px 2px 0 0, #abffcf 3px 3px 0 0, #bcffd9 4px 4px 0 0, #cdffe3 5px 5px 0 0;
+  color: #005625;
+}
+
+.log-in-btn:active {
+  border-color: #00de61;
+  box-shadow: #89ffbc 1px 1px 0 0, #9affc6 2px 2px 0 0, #abffcf 3px 3px 0 0, #bcffd9 4px 4px 0 0;
+}
+
+.log-in {
+  margin-bottom: 2rem;
 }
