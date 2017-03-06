@@ -7,7 +7,7 @@
   "browser": "js/main.js",
   "scripts": {
     "start": "npm run dev",
-    "dev": "http-server -c-1 -p 7000",
+    "dev": "http-server -c-1 -p 7000 --cors",
     "pressl": "openssl req -new -newkey rsa:4096 -sha512 -days 365 -nodes -x509 -subj '/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com' -keyout key.pem -out cert.pem",
     "ssl": "npm run dev -- --ssl",
     "deploy": "ghpages -p _prod",
