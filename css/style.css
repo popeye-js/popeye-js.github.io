@@ -38,7 +38,6 @@ body {
   font-weight: 600;
   opacity: .9;
   text-decoration: none;
-  text-indent: 1rem;
   transition: .15s opacity ease-in-out;
 }
 
@@ -54,7 +53,7 @@ body {
   content: "";
   display: inline-block;
   height: 50px;
-  margin: 1rem;
+  margin-right: 1.25rem;
   vertical-align: middle;
   width: 50px;
 }
