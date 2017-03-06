@@ -1,0 +1,48 @@
+{
+  "name": "popeye-js",
+  "version": "0.1.0",
+  "private": "true",
+  "description": "Popeye voice controls.",
+  "main": "js/main.js",
+  "browser": "js/main.js",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "http-server -c-1 -p 7000",
+    "pressl": "openssl req -new -newkey rsa:4096 -sha512 -days 365 -nodes -x509 -subj '/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com' -keyout key.pem -out cert.pem",
+    "ssl": "npm run dev -- --ssl",
+    "deploy": "ghpages -p _prod",
+    "open": "opn 'https://popeye-js.github.io/'",
+    "prebuild": "shx rm -rf _prod",
+    "preprod": "npm run build",
+    "pretest": "npm run build",
+    "predeploy": "npm run build"
+  },
+  "dependencies": {
+    "shx": "^0.2.1"
+  },
+  "devDependencies": {
+    "ghpages": "^0.0.10",
+    "opn": "^4.0.2",
+    "request-promise": "^4.1.1"
+  },
+  "engines": {
+    "node": "6.9.1"
+  },
+  "repository": "popeye-js/popeye-js.github.io",
+  "keywords": [
+    "popeye",
+    "popeye-js",
+    "voice",
+    "voice-control",
+    "voice-controls",
+    "voice-command",
+    "voice-commands",
+    "voice-recognition",
+    "speech",
+    "speech-control",
+    "speech-controls",
+    "speech-synthesis",
+    "speech-recognition",
+    "browser"
+  ]
+}
