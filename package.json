@@ -1,7 +1,6 @@
 {
   "name": "popeye-js",
   "version": "0.1.0",
-  "private": "true",
   "description": "Popeye voice controls.",
   "main": "js/main.js",
   "browser": "js/main.js",
