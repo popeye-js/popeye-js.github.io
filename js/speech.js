@@ -1,6 +1,18 @@
 /* global annyang */
 
 (function () {
+  var hash = (function(a) {
+    if (a === '') {
+      return {};
+    }
+    var b = {};
+    for (var i = 0; i < a.length; ++i) {
+      var p = a[i].split('=', 2);
+      b[p[0]] = p.length === 1 ? '' : window.decodeURIComponent(p[1].replace(/\+/g, ' '));
+    }
+    return b;
+  })(window.location.hash.substr(1).split('&'));
+
   function xhr (opts) {
     if (typeof opts === 'string') {
       opts = {url: opts};
@@ -50,31 +62,11 @@
 
   annyang.addCommands(commands);
 
-  // var oauthURL = 'https://api.put.io/v2/oauth2/authenticate' +
-  //   '?client_id=2801' +
-  //   '&response_type=token' +
-  //   '&redirect_uri=http://localhost:7000/';
-  //
-
-  var hash = (function(a) {
-      if (a == "") return {};
-      var b = {};
-      for (var i = 0; i < a.length; ++i)
-      {
-          var p=a[i].split('=', 2);
-          if (p.length == 1)
-              b[p[0]] = "";
-          else
-              b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
-      }
-      return b;
-  })(window.location.hash.substr(1).split('&'));
-
-    xhr({url: 'https://api.put.io/v2/files/list?parent_id=0&oauth_token=' + hash.access_token , method: 'get'}).then(function (data) {
-      JSON.parse(data).files.forEach(function(file){
-        logCommand(file.name);
-      });
+  xhr({url: 'https://api.put.io/v2/files/list?parent_id=0&oauth_token=' + hash.access_token , method: 'get'}).then(function (data) {
+    JSON.parse(data).files.forEach(function(file){
+      logCommand(file.name);
     });
+  });
 
   annyang.start();
 })();
