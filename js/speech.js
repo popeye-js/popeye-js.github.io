@@ -42,11 +42,26 @@
     commandLogs.appendChild(li);
   }
 
+  var urls = {
+    putIO: {
+      filesList: 'https://api.put.io/v2/files/list?parent_id=0&oauth_token=' + hash.access_token
+    }
+  };
+
+  xhr({
+    method: 'get',
+    url: urls.putIO.filesList
+  }).then(function (data) {
+    JSON.parse(data).files.forEach(function (file) {
+      logCommand(file.name);
+    });
+  });
+
   if (!annyang) {
     throw new Error('Could not find `annyang` library');
   }
 
-  var commands = {
+  var speechCommands = {
     'download *type': function (type) {
       logCommand(`download ${type}`);
       // var url = `http://api.flickr.com/services/rest/?tags=${type}`;
@@ -60,13 +75,7 @@
     }
   };
 
-  annyang.addCommands(commands);
-
-  xhr({url: 'https://api.put.io/v2/files/list?parent_id=0&oauth_token=' + hash.access_token , method: 'get'}).then(function (data) {
-    JSON.parse(data).files.forEach(function(file){
-      logCommand(file.name);
-    });
-  });
+  annyang.addCommands(speechCommands);
 
   annyang.start();
 })();
