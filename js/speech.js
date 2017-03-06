@@ -1,7 +1,7 @@
 /* global annyang */
 
 (function () {
-  var hash = (function(a) {
+  var hash = (function (a) {
     if (a === '') {
       return {};
     }
@@ -42,11 +42,24 @@
     commandLogs.appendChild(li);
   }
 
+  var IS_PROD = !window.location.port && window.location.protocol === 'https:';
+
+  // Generate the URL for the user to log in to Put.io and get redirected back to this page.
+  var redirectUri = encodeURIComponent(window.location.href);
+  var nextUri = encodeURIComponent(`https://api.put.io/v2/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=$redirectUri}`);
+  var putIOLoginUri = `https://api.put.io/v2/oauth2/login?next=${nextUri}`;
+
   var urls = {
     putIO: {
-      filesList: 'https://api.put.io/v2/files/list?parent_id=0&oauth_token=' + hash.access_token
+      filesList: 'https://api.put.io/v2/files/list?parent_id=0&oauth_token=' + hash.access_token,
+      login: putIOLoginUri
     }
   };
+
+  var logInBtn = document.querySelector('#log-in-btn');
+  if (logInBtn) {
+    logInBtn.setAttribute('href', urls.putIO.login);
+  }
 
   xhr({
     method: 'get',
