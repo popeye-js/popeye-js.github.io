@@ -52,9 +52,11 @@
   var urls = {
     putIO: {
       filesList: 'https://api.put.io/v2/files/list?parent_id=0&oauth_token=' + hash.access_token,
+      transfersAdd: 'https://api.put.io/v2/transfers/add?oauth_token=' + hash.access_token,
       login: putIOLoginUri
     }
   };
+
 
   var logInBtn = document.querySelector('#log-in-btn');
   if (logInBtn) {
@@ -68,6 +70,22 @@
     JSON.parse(data).files.forEach(function (file) {
       logCommand(file.name);
     });
+  });
+
+  // returns an error msg for some reason
+  xhr({
+    method: 'POST',
+    url: urls.putIO.transfersAdd,
+    data: {
+      url: 'magnet:?xt=urn:btih:17e730a85fba4531b0163f53a3813826d27baa21&dn=' +
+      'Little.Women.LA.S06E02.Tough.Crowd.HDTV.x264-%5BNY2%5D+-&tr=udp%3A%2F%2' +
+      'Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&t' +
+      'r=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fpublic.' +
+      'popcorn-tracker.org%3A6969'
+    }
+  }).then(function (data) {
+    logCommand(urls.putIO.transfersAdd);
+    logCommand("source data of downloaded file: " + data);
   });
 
   if (!annyang) {
