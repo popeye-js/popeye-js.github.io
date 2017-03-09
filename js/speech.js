@@ -1,7 +1,7 @@
 /* global annyang */
 
-(function () {
-  var hash = (function (a) {
+(function() {
+  var hash = (function(a) {
     if (a === '') {
       return {};
     }
@@ -13,19 +13,25 @@
     return b;
   })(window.location.hash.substr(1).split('&'));
 
-  function xhr (opts) {
+  function xhr(opts) {
     if (typeof opts === 'string') {
-      opts = {url: opts};
+      opts = {
+        url: opts
+      };
     }
     opts = opts || {};
     opts.method = opts.method || 'get';
     if (typeof opts.data === 'object') {
-      opts.data = JSON.stringify(opts.data);
+      var formData = new FormData();
+      for (var prop in opts.data) {
+        formData.append(prop, opts.data[prop]);
+      };
+      opts.data = formData;
     }
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
       xhr.open(opts.method, opts.url, 'true');
-      xhr.addEventListener('load', function () {
+      xhr.addEventListener('load', function() {
         resolve(xhr.responseText);
       });
       xhr.addEventListener('error', reject);
@@ -35,7 +41,7 @@
 
   var commandLogs = document.querySelector('#command-logs');
 
-  function logCommand (cmd) {
+  function logCommand(cmd) {
     console.log(cmd);
     var li = document.createElement('li');
     li.textContent = cmd;
@@ -66,24 +72,24 @@
   xhr({
     method: 'get',
     url: urls.putIO.filesList
-  }).then(function (data) {
-    JSON.parse(data).files.forEach(function (file) {
+  }).then(function(data) {
+    JSON.parse(data).files.forEach(function(file) {
       logCommand(file.name);
     });
   });
 
-  // returns an error msg for some reason
+  // Test to create a transfer on put.io. Status: working code
   xhr({
     method: 'POST',
     url: urls.putIO.transfersAdd,
     data: {
       url: 'magnet:?xt=urn:btih:17e730a85fba4531b0163f53a3813826d27baa21&dn=' +
-      'Little.Women.LA.S06E02.Tough.Crowd.HDTV.x264-%5BNY2%5D+-&tr=udp%3A%2F%2' +
-      'Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&t' +
-      'r=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fpublic.' +
-      'popcorn-tracker.org%3A6969'
+        'Little.Women.LA.S06E02.Tough.Crowd.HDTV.x264-%5BNY2%5D+-&tr=udp%3A%2F%2' +
+        'Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&t' +
+        'r=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fpublic.' +
+        'popcorn-tracker.org%3A6969'
     }
-  }).then(function (data) {
+  }).then(function(data) {
     logCommand(urls.putIO.transfersAdd);
     logCommand("source data of downloaded file: " + data);
   });
@@ -93,7 +99,7 @@
   }
 
   var speechCommands = {
-    'download *type': function (type) {
+    'download *type': function(type) {
       logCommand(`download ${type}`);
       // var url = `http://api.flickr.com/services/rest/?tags=${type}`;
       // xhr({
