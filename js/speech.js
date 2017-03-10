@@ -55,11 +55,16 @@
   var nextUri = encodeURIComponent(`https://api.put.io/v2/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=$redirectUri}`);
   var putIOLoginUri = `https://api.put.io/v2/oauth2/login?next=${nextUri}`;
 
+  var localhostAPI = 'http://localhost:7001/';
+
   var urls = {
     putIO: {
       filesList: 'https://api.put.io/v2/files/list?parent_id=0&oauth_token=' + hash.access_token,
       transfersAdd: 'https://api.put.io/v2/transfers/add?oauth_token=' + hash.access_token,
       login: putIOLoginUri
+    },
+    popeyeAPI: {
+      latestEpisode: localhostAPI + 'latestEpisode?show='
     }
   };
 
@@ -69,46 +74,61 @@
     logInBtn.setAttribute('href', urls.putIO.login);
   }
 
-  xhr({
-    method: 'get',
-    url: urls.putIO.filesList
-  }).then(function(data) {
-    JSON.parse(data).files.forEach(function(file) {
-      logCommand(file.name);
-    });
-  });
+  // xhr({
+  //   method: 'get',
+  //   url: urls.putIO.filesList
+  // }).then(function(data) {
+  //   JSON.parse(data).files.forEach(function(file) {
+  //     logCommand(file.name);
+  //   });
+  // });
 
-  // Test to create a transfer on put.io. Status: working code
-  xhr({
-    method: 'POST',
-    url: urls.putIO.transfersAdd,
-    data: {
-      url: 'magnet:?xt=urn:btih:17e730a85fba4531b0163f53a3813826d27baa21&dn=' +
-        'Little.Women.LA.S06E02.Tough.Crowd.HDTV.x264-%5BNY2%5D+-&tr=udp%3A%2F%2' +
-        'Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&t' +
-        'r=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fpublic.' +
-        'popcorn-tracker.org%3A6969'
-    }
-  }).then(function(data) {
-    logCommand(urls.putIO.transfersAdd);
-    logCommand("source data of downloaded file: " + data);
-  });
+  function addTransfer(magnetLink){
+  };
+
+  function getLatestEpisode(show){
+  };
 
   if (!annyang) {
     throw new Error('Could not find `annyang` library');
   }
 
   var speechCommands = {
-    'download *type': function(type) {
-      logCommand(`download ${type}`);
-      // var url = `http://api.flickr.com/services/rest/?tags=${type}`;
-      // xhr({
-      //   method: 'get',
-      //   url: url
-      // }).then(function (download) {
-      //   console.log('download', download);
-      //   logCommand(download);
-      // });
+    // 'download *type': function(type) {
+    //   logCommand(`download ${type}`);
+    //   // var url = `http://api.flickr.com/services/rest/?tags=${type}`;
+    //   // xhr({
+    //   //   method: 'get',
+    //   //   url: url
+    //   // }).then(function (download) {
+    //   //   console.log('download', download);
+    //   //   logCommand(download);
+    //   // });
+    // },
+    'download the latest episode of *show' : function(show){
+      // get the latest episode info
+      show = encodeURI(show);
+      logCommand('latest show: ' + show);
+
+      xhr({
+        method: 'get',
+        url: urls.popeyeAPI.latestEpisode+show
+      }).then(function(data) {
+        logCommand('latestEpisode Date:' + data);
+        data = JSON.parse(data);
+
+        var magnetLink = data.magnetLink;
+        xhr({
+          method: 'POST',
+          url: urls.putIO.transfersAdd,
+          data: {
+            url: magnetLink
+          }
+        }).then(function(data) {
+          logCommand("Add transfer data:" + data);
+        });
+
+      });
     }
   };
 
