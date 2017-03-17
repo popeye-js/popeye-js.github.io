@@ -74,61 +74,58 @@
     logInBtn.setAttribute('href', urls.putIO.login);
   }
 
-  // xhr({
-  //   method: 'get',
-  //   url: urls.putIO.filesList
-  // }).then(function(data) {
-  //   JSON.parse(data).files.forEach(function(file) {
-  //     logCommand(file.name);
-  //   });
-  // });
+  function addTransfer(magnetLink) {};
 
-  function addTransfer(magnetLink){
-  };
-
-  function getLatestEpisode(show){
-  };
+  function getLatestEpisode(show) {};
 
   if (!annyang) {
     throw new Error('Could not find `annyang` library');
   }
 
   var speechCommands = {
-    // 'download *type': function(type) {
-    //   logCommand(`download ${type}`);
-    //   // var url = `http://api.flickr.com/services/rest/?tags=${type}`;
-    //   // xhr({
-    //   //   method: 'get',
-    //   //   url: url
-    //   // }).then(function (download) {
-    //   //   console.log('download', download);
-    //   //   logCommand(download);
-    //   // });
-    // },
-    'download the latest episode of *show' : function(show){
-      // get the latest episode info
+    'upload (the) movie *movie': function(movie) {
+      console.log(`download ${movie}`);
+    },
+    'upload the latest episode of *show': function(show) {
       show = encodeURI(show);
       logCommand('latest show: ' + show);
 
-      xhr({
-        method: 'get',
-        url: urls.popeyeAPI.latestEpisode+show
-      }).then(function(data) {
-        logCommand('latestEpisode Date:' + data);
-        data = JSON.parse(data);
+      var fetchEp = function() {
+        return xhr({
+          method: 'get',
+          url: urls.popeyeAPI.latestEpisode + show
+        }).then(function(data) {
+          data = JSON.parse(data);
+          return data;
+        });
+      };
 
-        var magnetLink = data.magnetLink;
-        xhr({
+      var displayEp = function(data) {
+        return new Promise(function(resolve, reject) {
+          data['voiceCommand'] = 'upload the latest episode of ' + decodeURI(show);
+          voiceUI.addEpInfo(data);
+          resolve(data);
+        });
+      }
+
+      var addTransfer = function(data) {
+        return xhr({
           method: 'POST',
           url: urls.putIO.transfersAdd,
           data: {
-            url: magnetLink
+            url: data.magnetLink
           }
         }).then(function(data) {
+          // TODO do something with this retunr data
           logCommand("Add transfer data:" + data);
         });
+      };
 
-      });
+      reportProblems = function(fault) {
+        console.error(fault);
+      };
+
+      fetchEp().then(displayEp).then(addTransfer).catch(reportProblems);
     }
   };
 
