@@ -108,6 +108,7 @@
         return new Promise(function(resolve, reject) {
           data['voiceCommand'] = 'upload the latest episode of ' + decodeURI(show);
           voiceUI.addEpInfo(data);
+          voiceUI.resultsShow();
           resolve(data);
         });
       }

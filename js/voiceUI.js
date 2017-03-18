@@ -159,6 +159,7 @@ microphone.addEventListener('click', function(evt) {
   } else {
     annyang.pause();
     voiceUI.listenStop();
+    voiceUI.resultsHide();
     isPaused = true;
   }
 });
