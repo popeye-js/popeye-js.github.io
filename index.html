@@ -10,6 +10,7 @@
   <link rel="icon" href="favicon.ico">
   <script src="js/main.js" async defer></script>
   <script src="js/lib/annyang.min.js" async defer></script>
+  <script src="https://code.jquery.com/jquery-3.2.0.slim.min.js" integrity="sha256-qLAv0kBAihcHZLI3fv3WITKeRsUX27hd6upBBa0MSow=" crossorigin="anonymous"></script>
 </head>
 
 <body class="index">
@@ -28,14 +29,23 @@
     </header>
     <main id="content" class="content">
 
-      <div id="droplet" class="droplet" aria-hidden="false">
+      <!-- <div id="droplet" class="droplet" aria-hidden="false">
         <div id="dropleft-files" class="droplet-files">
           <div id="droplet-spinner" class="droplet-spinner">
             <div class="droplet-double-bounce1"></div>
             <div class="droplet-double-bounce2"></div>
           </div>
         </div>
+      </div> -->
+
+      <div class="google-microphone">
+        <div id='listenShadow' class="shadow">
+          <div class="gn">
+            <div class="mc"></div>
+          </div>
+        </div>
       </div>
+
       <div id="results" class="results" aria-hidden="false">
         <h2 id="results-heading" class="results-heading">Results for <strong id="results-term" class="results-term"></strong>&hellip;</h2>
         <ol id="results-list" class="results-list"></ol>

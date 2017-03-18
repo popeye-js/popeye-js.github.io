@@ -74,13 +74,17 @@
     logInBtn.setAttribute('href', urls.putIO.login);
   }
 
-  function addTransfer(magnetLink) {};
-
-  function getLatestEpisode(show) {};
-
   if (!annyang) {
     throw new Error('Could not find `annyang` library');
   }
+
+  annyang.addCallback('soundstart', function() {
+    console.log('sound detected');
+  });
+
+  annyang.addCallback('result', function() {
+    console.log('sound stopped');
+  });
 
   var speechCommands = {
     'upload (the) movie *movie': function(movie) {
@@ -132,4 +136,5 @@
   annyang.addCommands(speechCommands);
 
   annyang.start();
+  annyang.pause();
 })();

@@ -23,6 +23,14 @@ var voiceUI = (function() {
     resultsEl.setAttribute('aria-hidden', 'true');
   }
 
+  function listenStart() {
+    $("#listenShadow").addClass('listening')
+  }
+
+  function listenStop() {
+    $("#listenShadow").removeClass('listening')
+  }
+
   function resultsUpdate(newResults) {
     results = newResults || [];
     var newItemHTML = '';
@@ -73,9 +81,9 @@ var voiceUI = (function() {
     ];
   }
 
-  dropletEl.addEventListener('click', function() {
-    dropletHide();
-  });
+  // dropletEl.addEventListener('click', function() {
+  //   dropletHide();
+  // });
 
   var searchTerm = 'penguins'; // TODO: This should come from the query-string parameter in the URL, for example.
 
@@ -113,7 +121,7 @@ var voiceUI = (function() {
   function addEpInfo(epInfo) {
     resultsTermEl.textContent = epInfo['voiceCommand'];
     var newItemHTML = '';
-    
+
     var poster = `<li>
       <img src="${epInfo.poster}">
     </li>`;
@@ -134,7 +142,23 @@ var voiceUI = (function() {
     resultsHide: resultsHide,
     resultsUpdate: resultsUpdate,
     resultsClear: resultsClear,
-    addEpInfo: addEpInfo
+    addEpInfo: addEpInfo,
+    listenStop: listenStop,
+    listenStart: listenStart
   }
 
 }());
+
+var isPaused = true;
+var microphone = document.querySelector('.google-microphone');
+microphone.addEventListener('click', function(evt) {
+  if (isPaused) {
+    annyang.resume();
+    voiceUI.listenStart();
+    isPaused = false;
+  } else {
+    annyang.pause();
+    voiceUI.listenStop();
+    isPaused = true;
+  }
+});
