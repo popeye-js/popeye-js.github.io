@@ -30,32 +30,49 @@ body {
   font-family: franklin_gothic_fsdemi, Helvetica Neue, Helvetica, Arial, sans-serif;
 }
 
+.site-title {
+  margin-bottom: 4.5rem;
+}
+
 .site-title a {
-  align-items: center;
-  color: #5b453b;
-  display: flex;
+  color: rgba(0,0,0,.6);
+  display: block;
   font-size: 3rem;
+  font-size: calc(1.5rem + 3vw + 1vh);
   font-weight: 600;
   opacity: .9;
+  padding-left: 10rem;
+  padding-left: calc(3rem + 9vw);
   position: relative;
   text-decoration: none;
-  transition: .15s opacity ease-in-out;
+  transition: .15s color ease-in-out, .15s opacity ease-in-out;
 }
 
 .site-title a:hover {
+  color: rgba(0,0,0,.3);
   opacity: 1;
 }
 
 .site-title a:before {
-  background: lightseagreen;
+  background: rgba(0,0,0,.3);
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.5);
+  border: 2px solid rgba(0,0,0,.9);
   content: "";
-  display: inline-block;
-  height: 50px;
-  margin-right: 1.25rem;
-  vertical-align: middle;
-  width: 50px;
+  height: 10vw;
+  left: 0;
+  max-height: 8rem;
+  max-width: 8rem;
+  min-height: 4rem;
+  min-width: 4rem;
+  position: absolute;
+  top: -1vw;
+  transition: .15s background-color ease-in-out, .15s border-color ease-in-out;
+  width: 10vw;
+}
+
+.site-title a:hover:before {
+  background-color: rgba(0,0,0,.15);
+  border-color: rgba(0,0,0,.15);
 }
 
 .site-title a:after {
@@ -65,12 +82,21 @@ body {
   border: 2px solid transparent;
   content: "";
   filter: invert(1);
-  display: inline-block;
-  position: absolute;
+  height: 10vw;
   left: 0;
-  height: 50px;
-  vertical-align: middle;
-  width: 50px;
+  max-height: 8rem;
+  max-width: 8rem;
+  min-height: 4rem;
+  min-width: 4rem;
+  order: -1;
+  position: absolute;
+  top: -1vw;
+  transition: .15s filter ease-in-out;
+  width: 10vw;
+}
+
+.site-title a:hover:after {
+  filter: invert(0);
 }
 
 .content {
