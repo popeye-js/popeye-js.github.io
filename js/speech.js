@@ -1,7 +1,7 @@
 /* global annyang */
 
-(function() {
-  var hash = (function(a) {
+(function () {
+  var hash = (function (a) {
     if (a === '') {
       return {};
     }
@@ -28,10 +28,10 @@
       };
       opts.data = formData;
     }
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       var xhr = new XMLHttpRequest();
       xhr.open(opts.method, opts.url, 'true');
-      xhr.addEventListener('load', function() {
+      xhr.addEventListener('load', function () {
         resolve(xhr.responseText);
       });
       xhr.addEventListener('error', reject);
@@ -41,7 +41,7 @@
 
   var commandLogs = document.querySelector('#command-logs');
 
-  function logCommand(cmd) {
+  function logCommand (cmd) {
     console.log(cmd);
     var li = document.createElement('li');
     li.textContent = cmd;
@@ -50,24 +50,26 @@
 
   var IS_PROD = !window.location.port && window.location.protocol === 'https:';
 
-  // Generate the URL for the user to log in to Put.io and get redirected back to this page.
-  var redirectUri = encodeURIComponent(window.location.href);
-  var nextUri = encodeURIComponent(`https://api.put.io/v2/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${redirectUri}`);
-  var putIOLoginUri = `https://api.put.io/v2/oauth2/login?next=${nextUri}`;
-
-  var localhostAPI = 'http://localhost:7001/';
+  var API_DEV = 'http://localhost:7001/';
+  var API_PROD = 'https://popeye-api.herokuapp.com/';
+  var API = IS_PROD ? API_PROD : API_DEV;
 
   var urls = {
     putIO: {
-      filesList: 'https://api.put.io/v2/files/list?parent_id=0&oauth_token=' + hash.access_token,
-      transfersAdd: 'https://api.put.io/v2/transfers/add?oauth_token=' + hash.access_token,
-      login: putIOLoginUri
+      base: 'https://api.put.io/v2',
     },
     popeyeAPI: {
-      latestEpisode: localhostAPI + 'latestEpisode?show='
+      latestEpisode: API_DEV + 'latestEpisode?show='
     }
   };
 
+  // Generate the URL for the user to log in to Put.io and get redirected back to this page.
+  var redirectUri = encodeURIComponent(window.location.href);
+  var nextUri = encodeURIComponent(`${urls.putIO.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${redirectUri}`);
+  urls.putIO.login = `${urls.putIO.base}/oauth2/login?next=${nextUri}`;
+
+  // urls.putIO.filesList = `${urls.putIO.base}/files/list?parent_id=0&oauth_token=${hash.access_token}`;
+  urls.putIO.transfersAdd = `${urls.putIO.base}/transfers/add?oauth_token=${hash.access_token}`;
 
   var logInBtn = document.querySelector('#log-in-btn');
   if (logInBtn) {
@@ -78,55 +80,55 @@
     throw new Error('Could not find `annyang` library');
   }
 
-  annyang.addCallback('soundstart', function() {
+  annyang.addCallback('soundstart', function () {
     console.log('sound detected');
   });
 
-  annyang.addCallback('result', function() {
+  annyang.addCallback('result', function () {
     console.log('sound stopped');
   });
 
   var speechCommands = {
-    'upload (the) movie *movie': function(movie) {
+    'upload (the) movie *movie': function (movie) {
       console.log(`download ${movie}`);
     },
-    'upload the latest episode of *show': function(show) {
+    'upload the latest episode of *show': function (show) {
       show = encodeURI(show);
-      logCommand('latest show: ' + show);
+      logCommand('Latest show: ' + show);
 
-      var fetchEp = function() {
+      var fetchEp = function () {
         return xhr({
           method: 'get',
           url: urls.popeyeAPI.latestEpisode + show
-        }).then(function(data) {
+        }).then(function (data) {
           data = JSON.parse(data);
           return data;
         });
       };
 
-      var displayEp = function(data) {
-        return new Promise(function(resolve, reject) {
-          data['voiceCommand'] = 'upload the latest episode of ' + decodeURI(show);
+      var displayEp = function (data) {
+        return new Promise(function (resolve, reject) {
+          data.voiceCommand = 'upload the latest episode of ' + decodeURI(show);
           voiceUI.addEpInfo(data);
           voiceUI.resultsShow();
           resolve(data);
         });
-      }
+      };
 
-      var addTransfer = function(data) {
+      var addTransfer = function (data) {
         return xhr({
           method: 'POST',
           url: urls.putIO.transfersAdd,
           data: {
             url: data.magnetLink
           }
-        }).then(function(data) {
-          // TODO do something with this retunr data
-          logCommand("Add transfer data:" + data);
+        }).then(function (data) {
+          // TODO: Do something with this return data.
+          logCommand('Add transfer data: ' + data);
         });
       };
 
-      reportProblems = function(fault) {
+      var reportProblems = function (fault) {
         console.error(fault);
       };
 
