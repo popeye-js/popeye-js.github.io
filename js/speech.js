@@ -52,7 +52,7 @@
 
   // Generate the URL for the user to log in to Put.io and get redirected back to this page.
   var redirectUri = encodeURIComponent(window.location.href);
-  var nextUri = encodeURIComponent(`https://api.put.io/v2/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=$redirectUri}`);
+  var nextUri = encodeURIComponent(`https://api.put.io/v2/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${redirectUri}`);
   var putIOLoginUri = `https://api.put.io/v2/oauth2/login?next=${nextUri}`;
 
   var localhostAPI = 'http://localhost:7001/';
