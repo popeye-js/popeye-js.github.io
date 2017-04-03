@@ -41,7 +41,7 @@
 
   var commandLogs = document.querySelector('#command-logs');
 
-  function logCommand (cmd) {
+  function logCommand(cmd) {
     console.log(cmd);
     var li = document.createElement('li');
     li.textContent = cmd;
@@ -56,7 +56,7 @@
 
   var urls = {
     putIO: {
-      base: 'https://api.put.io/v2',
+      base: 'https://api.put.io/v2'
     },
     popeyeAPI: {
       latestEpisode: API_DEV + 'latestEpisode?show='
@@ -123,16 +123,49 @@
             url: data.magnetLink
           }
         }).then(function (data) {
-          // TODO: Do something with this return data.
-          logCommand('Add transfer data: ' + data);
+          data = JSON.parse(data);
+          return data.transfer.id;
         });
       };
+
+      var getTransfer = function (id) {
+        return xhr({
+          method: 'get',
+          url: `${urls.putIO.base}/transfers/${id}?oauth_token=${hash.access_token}`
+        }).then(function (data) {
+          data = JSON.parse(data);
+          return data.transfer.file_id;
+        });
+      }
+
+      var getFile = function (fileId) {
+        return xhr({
+          method: 'get',
+          url: `${urls.putIO.base}/files/${fileId}?oauth_token=${hash.access_token}`
+        }).then(function (data) {
+          data = JSON.parse(data);
+          var player = videojs('results-video');
+          if (data.file.file_type == "VIDEO") {
+            player.src(`${urls.putIO.base}/files/${fileId}/mp4/download?oauth_token=${hash.access_token}`);
+            player.poster(data.file.screenshot);
+          } 
+          // TEMP fix, often times the video file's id in a folder is incremented by 1
+          // ideally we need to get the folder contents but api does not clarify. 
+          else if(data.file.file_type == "FOLDER"){
+              fileId = parseInt(fileId) + 1;
+              player.src(`${urls.putIO.base}/files/${fileId}/mp4/download?oauth_token=${hash.access_token}`);
+              player.poster(data.file.screenshot);
+          }
+
+          return data;
+        });
+      }
 
       var reportProblems = function (fault) {
         console.error(fault);
       };
 
-      fetchEp().then(displayEp).then(addTransfer).catch(reportProblems);
+      fetchEp().then(displayEp).then(addTransfer).then(getTransfer).then(getFile).catch(reportProblems);
     }
   };
 

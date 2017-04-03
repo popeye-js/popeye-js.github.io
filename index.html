@@ -10,7 +10,10 @@
   <link rel="icon" href="favicon.ico">
   <script src="js/main.js" async defer></script>
   <script src="js/lib/annyang.min.js" async defer></script>
-  <script src="https://code.jquery.com/jquery-3.2.0.slim.min.js" integrity="sha256-qLAv0kBAihcHZLI3fv3WITKeRsUX27hd6upBBa0MSow=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.2.0.slim.min.js" integrity="sha256-qLAv0kBAihcHZLI3fv3WITKeRsUX27hd6upBBa0MSow="
+    crossorigin="anonymous"></script>
+  <link href="http://vjs.zencdn.net/5.19.0/video-js.css" rel="stylesheet">
+  <script src="http://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
 </head>
 
 <body class="index">
@@ -41,10 +44,18 @@
         <h2 id="results-heading" class="results-heading">Results for <strong id="results-term" class="results-term"></strong>&hellip;</h2>
         <ol id="results-list" class="results-list"></ol>
         <a href="#" id="results-close" class="results-close" title="Close">&times;</a>
+
+        <video id="results-video" class="video-js" controls preload="auto" width="420" height="264" poster="http://video-js.zencoder.com/oceans-clip.png" data-setup="{}">
+          <source src="http://vjs.zencdn.net/v/oceans.mp4" type='video/mp4'>
+          <p class="vjs-no-js">
+            To view this video please enable JavaScript, and consider upgrading to a web browser that
+            <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+          </p>
+        </video>
+
       </div>
 
       <ol id="command-logs" class="command-logs"></ol>
-
     </main>
   </div>
   <!-- TODO: Add Google Analytics -->
@@ -52,5 +63,6 @@
 
 <script src="js/voiceUI.js" async defer></script>
 <script src="js/speech.js" async defer></script>
+<script src="http://vjs.zencdn.net/5.19.0/video.js"></script>
 
 </html>
