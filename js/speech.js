@@ -72,7 +72,7 @@
     urls.putIO.login = `${urls.putIO.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${redirectUri}`;
   } else if (API == API_PROD) {
     // server login requries redirect to be matched with registered redirect with put.io
-    urls.putIO.login = `${API_PROD}/putio/authenticate`;
+    urls.putIO.login = `${API_PROD}putio/authenticate`;
   }
 
   urls.putIO.transfersAdd = `${urls.putIO.base}/transfers/add?oauth_token=${hash.access_token}`;
