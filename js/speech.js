@@ -59,16 +59,22 @@
       base: 'https://api.put.io/v2'
     },
     popeyeAPI: {
-      latestEpisode: API_DEV + 'latestEpisode?show='
+      latestEpisode: API + 'latestEpisode?show='
     }
   };
 
   // Generate the URL for the user to log in to Put.io and get redirected back to this page.
   var redirectUri = encodeURIComponent(window.location.href);
-  var nextUri = encodeURIComponent(`${urls.putIO.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${redirectUri}`);
-  urls.putIO.login = `${urls.putIO.base}/oauth2/login?next=${nextUri}`;
 
-  // urls.putIO.filesList = `${urls.putIO.base}/files/list?parent_id=0&oauth_token=${hash.access_token}`;
+  if (API == API_DEV) {
+    // added manually so we can define a redirect without registering and using server side 
+    // authentication  
+    urls.putIO.login = `${urls.putIO.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${redirectUri}`;
+  } else if (API == API_PROD) {
+    // server login requries redirect to be matched with registered redirect with put.io
+    urls.putIO.login = `${API_PROD}/putio/authenticate`;
+  }
+
   urls.putIO.transfersAdd = `${urls.putIO.base}/transfers/add?oauth_token=${hash.access_token}`;
 
   var logInBtn = document.querySelector('#log-in-btn');
@@ -148,13 +154,13 @@
           if (data.file.file_type == "VIDEO") {
             player.src(`${urls.putIO.base}/files/${fileId}/mp4/download?oauth_token=${hash.access_token}`);
             player.poster(data.file.screenshot);
-          } 
+          }
           // TEMP fix, often times the video file's id in a folder is incremented by 1
           // ideally we need to get the folder contents but api does not clarify. 
-          else if(data.file.file_type == "FOLDER"){
-              fileId = parseInt(fileId) + 1;
-              player.src(`${urls.putIO.base}/files/${fileId}/mp4/download?oauth_token=${hash.access_token}`);
-              player.poster(data.file.screenshot);
+          else if (data.file.file_type == "FOLDER") {
+            fileId = parseInt(fileId) + 1;
+            player.src(`${urls.putIO.base}/files/${fileId}/mp4/download?oauth_token=${hash.access_token}`);
+            player.poster(data.file.screenshot);
           }
 
           return data;
