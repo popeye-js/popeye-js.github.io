@@ -150,20 +150,22 @@
           url: `${urls.putIO.base}/files/${fileId}?oauth_token=${hash.access_token}`
         }).then(function (data) {
           data = JSON.parse(data);
+
           var player = videojs('results-video');
           if (data.file.file_type == "VIDEO") {
-            player.src(`${urls.putIO.base}/files/${fileId}/mp4/download?oauth_token=${hash.access_token}`);
+            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${hash.access_token}`);
             player.poster(data.file.screenshot);
           }
           // TEMP fix, often times the video file's id in a folder is incremented by 1
           // ideally we need to get the folder contents but api does not clarify. 
           else if (data.file.file_type == "FOLDER") {
             fileId = parseInt(fileId) + 1;
-            player.src(`${urls.putIO.base}/files/${fileId}/mp4/download?oauth_token=${hash.access_token}`);
-            player.poster(data.file.screenshot);
+            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${hash.access_token}`);            
+            // player.poster(data.file.screenshot); screenshot does not exist on folder
+            // need to make a request on the video file to get screenshot
           }
 
-          return data;
+          return data.file.file_type;
         });
       }
 
