@@ -23,7 +23,8 @@
     return;
   }
 
-  var ACCESS_TOKEN = localStorage.putioAccessToken || hash.ACCESS_TOKEN;
+  var ACCESS_TOKEN = localStorage.putioAccessToken;
+  var IS_LOGGED_IN = !!ACCESS_TOKEN;
 
   function xhr(opts) {
     if (typeof opts === 'string') {
