@@ -66,16 +66,25 @@
   // Generate the URL for the user to log in to Put.io and get redirected back to this page.
   var redirectUri = encodeURIComponent(window.location.href);
 
+  var access_token = '';
+  function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+  }
+
   if (API == API_DEV) {
     // added manually so we can define a redirect without registering and using server side 
     // authentication  
     urls.putIO.login = `${urls.putIO.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${redirectUri}`;
+    access_token = hash.access_token;
   } else if (API == API_PROD) {
     // server login requries redirect to be matched with registered redirect with put.io
     urls.putIO.login = `${API_PROD}putio/authenticate`;
+    access_token = getCookie('access_token');
   }
 
-  urls.putIO.transfersAdd = `${urls.putIO.base}/transfers/add?oauth_token=${hash.access_token}`;
+  urls.putIO.transfersAdd = `${urls.putIO.base}/transfers/add?oauth_token=${access_token}`;
 
   var logInBtn = document.querySelector('#log-in-btn');
   if (logInBtn) {
@@ -137,7 +146,7 @@
       var getTransfer = function (id) {
         return xhr({
           method: 'get',
-          url: `${urls.putIO.base}/transfers/${id}?oauth_token=${hash.access_token}`
+          url: `${urls.putIO.base}/transfers/${id}?oauth_token=${access_token}`
         }).then(function (data) {
           data = JSON.parse(data);
           return data.transfer.file_id;
@@ -147,20 +156,20 @@
       var getFile = function (fileId) {
         return xhr({
           method: 'get',
-          url: `${urls.putIO.base}/files/${fileId}?oauth_token=${hash.access_token}`
+          url: `${urls.putIO.base}/files/${fileId}?oauth_token=${access_token}`
         }).then(function (data) {
           data = JSON.parse(data);
 
           var player = videojs('results-video');
           if (data.file.file_type == "VIDEO") {
-            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${hash.access_token}`);
+            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${access_token}`);
             player.poster(data.file.screenshot);
           }
           // TEMP fix, often times the video file's id in a folder is incremented by 1
           // ideally we need to get the folder contents but api does not clarify. 
           else if (data.file.file_type == "FOLDER") {
             fileId = parseInt(fileId) + 1;
-            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${hash.access_token}`);            
+            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${access_token}`);
             // player.poster(data.file.screenshot); screenshot does not exist on folder
             // need to make a request on the video file to get screenshot
           }
