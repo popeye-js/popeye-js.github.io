@@ -1,4 +1,4 @@
-/* global annyang */
+/* global annyang, videojs, voiceUI */
 
 (function () {
   var hash = (function (a) {
@@ -35,9 +35,9 @@
     opts.method = opts.method || 'get';
     if (typeof opts.data === 'object') {
       var formData = new FormData();
-      for (var prop in opts.data) {
+      Object.keys(opts.data).forEach(function (prop) {
         formData.append(prop, opts.data[prop]);
-      };
+      });
       opts.data = formData;
     }
     return new Promise(function (resolve, reject) {
@@ -77,7 +77,9 @@
   URLS.putio.redirect = `${URLS.server.base}/putio/authenticate/redirect`;
   URLS.putio.oauthBase = `${URLS.putio.base}/oauth2`;
   URLS.putio.transfersAdd = `${URLS.putio.base}/transfers/add?oauth_token=${ACCESS_TOKEN}`;
-  URLs.putio.transfersGet = `${urls.putIO.base}/transfers/${id}?oauth_token=${ACCESS_TOKEN}`;
+  URLS.putio.transfersGet = function (id) { return `${URLS.putIO.base}/transfers/${id}?oauth_token=${ACCESS_TOKEN}`; };
+  URLS.putio.filesGet = function (fileId) { return `${URLS.putIO.base}/files/${fileId}?oauth_token=${ACCESS_TOKEN}`; };
+  URLS.putio.filesGetStream = function (fileId) { return `${URLS.putIO.base}/files/${fileId}/stream?oauth_token=${ACCESS_TOKEN}`; };
 
   var logInBtn = document.querySelector('#log-in-btn');
   if (logInBtn) {
@@ -145,38 +147,43 @@
           data = JSON.parse(data);
           return data.transfer.file_id;
         });
-      }
+      };
 
       var getFile = function (fileId) {
         return xhr({
           method: 'get',
-          url: `${urls.putIO.base}/files/${fileId}?oauth_token=${ACCESS_TOKEN}`
+          url: URLS.putio.filesGet(fileId)
         }).then(function (data) {
           data = JSON.parse(data);
 
           var player = videojs('results-video');
           if (data.file.file_type === 'VIDEO') {
-            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${ACCESS+TOKEN}`);
+            player.src(URLS.putio.filesGetStream(fileId));
             player.poster(data.file.screenshot);
           }
           // TEMP fix, often times the video file's id in a folder is incremented by 1
           // ideally we need to get the folder contents but api does not clarify. 
           else if (data.file.file_type === 'FOLDER') {
             fileId = parseInt(fileId) + 1;
-            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${ACCESS_TOKEN}`);
+            player.src(URLS.putio.filesGetStream(fileId));
             // player.poster(data.file.screenshot); screenshot does not exist on folder
             // need to make a request on the video file to get screenshot
           }
 
           return data.file.file_type;
         });
-      }
-
-      var reportProblems = function (fault) {
-        console.error(fault);
       };
 
-      fetchEp().then(displayEp).then(addTransfer).then(getTransfer).then(getFile).catch(reportProblems);
+      var handleErrors = function (err) {
+        console.error(err);
+      };
+
+      fetchEp()
+        .then(displayEp)
+        .then(addTransfer)
+        .then(getTransfer)
+        .then(getFile)
+        .catch(handleErrors);
     }
   };
 
