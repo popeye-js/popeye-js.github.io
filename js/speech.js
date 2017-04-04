@@ -1,4 +1,4 @@
-/* global annyang */
+/* global annyang, videojs, voiceUI */
 
 (function () {
   var hash = (function (a) {
@@ -13,6 +13,19 @@
     return b;
   })(window.location.hash.substr(1).split('&'));
 
+  if (!('localStorage' in window)) {
+    console.error('`localStorage` is required');
+  }
+
+  if (hash && hash.ACCESS_TOKEN) {
+    localStorage.putioAccessToken = hash.ACCESS_TOKEN;
+    window.location.href = window.location.pathname + window.location.search;  // Redirect to the same URL but without the hash this time.
+    return;
+  }
+
+  var ACCESS_TOKEN = localStorage.putioAccessToken;
+  var IS_LOGGED_IN = !!ACCESS_TOKEN;
+
   function xhr(opts) {
     if (typeof opts === 'string') {
       opts = {
@@ -23,9 +36,9 @@
     opts.method = opts.method || 'get';
     if (typeof opts.data === 'object') {
       var formData = new FormData();
-      for (var prop in opts.data) {
+      Object.keys(opts.data).forEach(function (prop) {
         formData.append(prop, opts.data[prop]);
-      };
+      });
       opts.data = formData;
     }
     return new Promise(function (resolve, reject) {
@@ -50,45 +63,28 @@
 
   var IS_PROD = !window.location.port && window.location.protocol === 'https:';
 
-  var API_DEV = 'http://localhost:7001/';
-  var API_PROD = 'https://popeye-api.herokuapp.com/';
-  var API = IS_PROD ? API_PROD : API_DEV;
-
-  var urls = {
-    putIO: {
-      base: 'https://api.put.io/v2'
+  var URLS = {
+    client: {
     },
-    popeyeAPI: {
-      latestEpisode: API + 'latestEpisode?show='
+    server: {
+      base: IS_PROD ? 'https://popeye-api.herokuapp.com' : 'http://localhost:7001'
+    },
+    putio: {
+      base: 'https://api.put.io/v2'
     }
   };
-
-  // Generate the URL for the user to log in to Put.io and get redirected back to this page.
-  var redirectUri = encodeURIComponent(window.location.href);
-
-  var access_token = '';
-  function getCookie(name) {
-    var value = "; " + document.cookie;
-    var parts = value.split("; " + name + "=");
-    if (parts.length == 2) return parts.pop().split(";").shift();
-  }
-
-  if (API == API_DEV) {
-    // added manually so we can define a redirect without registering and using server side 
-    // authentication  
-    urls.putIO.login = `${urls.putIO.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${redirectUri}`;
-    access_token = hash.access_token;
-  } else if (API == API_PROD) {
-    // server login requries redirect to be matched with registered redirect with put.io
-    urls.putIO.login = `${API_PROD}putio/authenticate`;
-    access_token = getCookie('access_token');
-  }
-
-  urls.putIO.transfersAdd = `${urls.putIO.base}/transfers/add?oauth_token=${access_token}`;
+  URLS.server.latestEpisode = function (id) { return URLS.server.base + `/latestEpisode?show=${id}`; };
+  URLS.putio.login = `${URLS.putio.base}/oauth2/login?next=${encodeURIComponent(`${URLS.putio.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${encodeURIComponent(window.location.href)}`)}`;
+  URLS.putio.redirect = `${URLS.server.base}/putio/authenticate/redirect`;
+  URLS.putio.oauthBase = `${URLS.putio.base}/oauth2`;
+  URLS.putio.transfersAdd = `${URLS.putio.base}/transfers/add?oauth_token=${ACCESS_TOKEN}`;
+  URLS.putio.transfersGet = function (id) { return `${URLS.putIO.base}/transfers/${id}?oauth_token=${ACCESS_TOKEN}`; };
+  URLS.putio.filesGet = function (fileId) { return `${URLS.putIO.base}/files/${fileId}?oauth_token=${ACCESS_TOKEN}`; };
+  URLS.putio.filesGetStream = function (fileId) { return `${URLS.putIO.base}/files/${fileId}/stream?oauth_token=${ACCESS_TOKEN}`; };
 
   var logInBtn = document.querySelector('#log-in-btn');
   if (logInBtn) {
-    logInBtn.setAttribute('href', urls.putIO.login);
+    logInBtn.setAttribute('href', URLS.putio.login);
   }
 
   if (!annyang) {
@@ -108,13 +104,14 @@
       console.log(`download ${movie}`);
     },
     'upload the latest episode of *show': function (show) {
-      show = encodeURI(show);
       logCommand('Latest show: ' + show);
+
+      show = encodeURI(show);
 
       var fetchEp = function () {
         return xhr({
           method: 'get',
-          url: urls.popeyeAPI.latestEpisode + show
+          url: URLS.server.latestEpisode(show)
         }).then(function (data) {
           data = JSON.parse(data);
           return data;
@@ -133,7 +130,7 @@
       var addTransfer = function (data) {
         return xhr({
           method: 'POST',
-          url: urls.putIO.transfersAdd,
+          url: URLS.putio.transfersAdd,
           data: {
             url: data.magnetLink
           }
@@ -146,43 +143,48 @@
       var getTransfer = function (id) {
         return xhr({
           method: 'get',
-          url: `${urls.putIO.base}/transfers/${id}?oauth_token=${access_token}`
+          url: URLS.putio.transfersGet(id)
         }).then(function (data) {
           data = JSON.parse(data);
           return data.transfer.file_id;
         });
-      }
+      };
 
       var getFile = function (fileId) {
         return xhr({
           method: 'get',
-          url: `${urls.putIO.base}/files/${fileId}?oauth_token=${access_token}`
+          url: URLS.putio.filesGet(fileId)
         }).then(function (data) {
           data = JSON.parse(data);
 
           var player = videojs('results-video');
-          if (data.file.file_type == "VIDEO") {
-            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${access_token}`);
+          if (data.file.file_type === 'VIDEO') {
+            player.src(URLS.putio.filesGetStream(fileId));
             player.poster(data.file.screenshot);
           }
           // TEMP fix, often times the video file's id in a folder is incremented by 1
           // ideally we need to get the folder contents but api does not clarify. 
-          else if (data.file.file_type == "FOLDER") {
+          else if (data.file.file_type === 'FOLDER') {
             fileId = parseInt(fileId) + 1;
-            player.src(`${urls.putIO.base}/files/${fileId}/stream?oauth_token=${access_token}`);
+            player.src(URLS.putio.filesGetStream(fileId));
             // player.poster(data.file.screenshot); screenshot does not exist on folder
             // need to make a request on the video file to get screenshot
           }
 
           return data.file.file_type;
         });
-      }
-
-      var reportProblems = function (fault) {
-        console.error(fault);
       };
 
-      fetchEp().then(displayEp).then(addTransfer).then(getTransfer).then(getFile).catch(reportProblems);
+      var handleErrors = function (err) {
+        console.error(err);
+      };
+
+      fetchEp()
+        .then(displayEp)
+        .then(addTransfer)
+        .then(getTransfer)
+        .then(getFile)
+        .catch(handleErrors);
     }
   };
 
