@@ -19,7 +19,7 @@
 
   if (hash && hash.ACCESS_TOKEN) {
     localStorage.putioAccessToken = hash.ACCESS_TOKEN;
-    window.location.href = '/';
+    window.location.href = window.location.pathname + window.location.search;  // Redirect to the same URL but without the hash this time.
     return;
   }
 
