@@ -73,19 +73,45 @@
       base: 'https://api.put.io/v2'
     }
   };
+
   URLS.server.latestEpisode = function (id) { return URLS.server.base + `/latestEpisode?show=${id}`; };
   // login redirect is based on the URI where the login btn exists
   URLS.putio.login = `${URLS.putio.base}/oauth2/login?next=${encodeURIComponent(`${URLS.putio.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${encodeURIComponent(window.location.href)}`)}`;
   URLS.putio.redirect = `${URLS.server.base}/putio/authenticate/redirect`;
   URLS.putio.oauthBase = `${URLS.putio.base}/oauth2`;
   URLS.putio.transfersAdd = `${URLS.putio.base}/transfers/add?oauth_token=${ACCESS_TOKEN}`;
-  URLS.putio.transfersGet = function (id) { return `${URLS.putIO.base}/transfers/${id}?oauth_token=${ACCESS_TOKEN}`; };
-  URLS.putio.filesGet = function (fileId) { return `${URLS.putIO.base}/files/${fileId}?oauth_token=${ACCESS_TOKEN}`; };
-  URLS.putio.filesGetStream = function (fileId) { return `${URLS.putIO.base}/files/${fileId}/stream?oauth_token=${ACCESS_TOKEN}`; };
+  URLS.putio.transfersGet = function (id) { return `${URLS.putio.base}/transfers/${id}?oauth_token=${ACCESS_TOKEN}`; };
+  URLS.putio.filesGet = function (fileId) { return `${URLS.putio.base}/files/${fileId}?oauth_token=${ACCESS_TOKEN}`; };
+  URLS.putio.filesGetStream = function (fileId) { return `${URLS.putio.base}/files/${fileId}/stream?oauth_token=${ACCESS_TOKEN}`; };
+  // URLS.putio.filesGetStream = function (fileId) { return `${URLS.putio.base}/files/${fileId}/mp4/download?oauth_token=${ACCESS_TOKEN}`; };
+  URLS.putio.accountInfo = `${URLS.putio.base}/account/info?oauth_token=${ACCESS_TOKEN}`;
 
   var logInBtn = document.querySelector('#log-in-btn');
   if (logInBtn) {
     logInBtn.setAttribute('href', URLS.putio.login);
+  }
+
+  var currUser = document.querySelector('#currUser');
+  if (IS_LOGGED_IN) {
+    var showUser = function () {
+      logInBtn.style.display = 'none';
+      currUser.style.display = '';
+      currUser.innerHTML = 'Logged in as: ' + localStorage.putioUsername;
+    };
+
+    if (!!localStorage.putioUsername) {
+      showUser();
+    }
+    else {
+      xhr({
+        method: 'get',
+        url: URLS.putio.accountInfo
+      }).then(function (data) {
+        data = JSON.parse(data);
+        localStorage.putioUsername = data.info.username
+        showUser();
+      });
+    }
   }
 
   if (!annyang) {
@@ -157,21 +183,23 @@
           url: URLS.putio.filesGet(fileId)
         }).then(function (data) {
           data = JSON.parse(data);
+          var player = document.querySelector('#results-player');
+          var source = document.createElement('source');
+          source.setAttribute('type', 'video/mp4')
 
-          var player = videojs('results-video');
           if (data.file.file_type === 'VIDEO') {
-            player.src(URLS.putio.filesGetStream(fileId));
-            player.poster(data.file.screenshot);
+            // player.poster(data.file.screenshot);
+            source.setAttribute('src', URLS.putio.filesGetStream(fileId));
           }
           // TEMP fix, often times the video file's id in a folder is incremented by 1
           // ideally we need to get the folder contents but api does not clarify. 
           else if (data.file.file_type === 'FOLDER') {
             fileId = parseInt(fileId) + 1;
-            player.src(URLS.putio.filesGetStream(fileId));
+            source.setAttribute('src', URLS.putio.filesGetStream(fileId));
             // player.poster(data.file.screenshot); screenshot does not exist on folder
             // need to make a request on the video file to get screenshot
           }
-
+          player.appendChild(source);
           return data.file.file_type;
         });
       };

@@ -12,8 +12,6 @@
   <script src="js/lib/annyang.min.js" async defer></script>
   <script src="https://code.jquery.com/jquery-3.2.0.slim.min.js" integrity="sha256-qLAv0kBAihcHZLI3fv3WITKeRsUX27hd6upBBa0MSow="
     crossorigin="anonymous"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/6.0.0/video-js.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/6.0.0/ie8/videojs-ie8.min.js"></script>
 </head>
 
 <body class="index">
@@ -26,6 +24,8 @@
             <a class="btn log-in-btn" id="log-in-btn" href="https://api.put.io/v2/oauth2/login?next=https%3A%2F%2Fapi.put.io%2Fv2%2Foauth2%2Fauthenticate%3Fclient_id%3D2801%26response_type%3Dtoken%26redirect_uri%3Dhttps%3A%252F%252Fpopeye-js.github.io%3A7000%252F">
                 Log in to <strong>Put.io</strong>
               </a>
+          </p>
+          <p id="currUser" style="display:none">
           </p>
         </header>
       </div>
@@ -45,12 +45,7 @@
         <ol id="results-list" class="results-list"></ol>
         <a href="#" id="results-close" class="results-close" title="Close">&times;</a>
 
-        <video id="results-video" class="video-js" controls preload="auto" width="420" height="264" poster="" data-setup="{}">
-          <source src="http://vjs.zencdn.net/v/oceans.mp4" type='video/mp4'>
-          <p class="vjs-no-js">
-            To view this video please enable JavaScript, and consider upgrading to a web browser that
-            <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-          </p>
+        <video id="results-player" width="400" controls>
         </video>
 
       </div>
@@ -63,6 +58,5 @@
 
 <script src="js/voiceUI.js" async defer></script>
 <script src="js/speech.js" async defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/6.0.0/video.min.js"></script>
 
 </html>
