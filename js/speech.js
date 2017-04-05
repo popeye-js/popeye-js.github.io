@@ -17,8 +17,8 @@
     console.error('`localStorage` is required');
   }
 
-  if (hash && hash.ACCESS_TOKEN) {
-    localStorage.putioAccessToken = hash.ACCESS_TOKEN;
+  if (hash && hash.access_token) {
+    localStorage.putioAccessToken = hash.access_token;
     window.location.href = window.location.pathname + window.location.search;  // Redirect to the same URL but without the hash this time.
     return;
   }
@@ -74,6 +74,7 @@
     }
   };
   URLS.server.latestEpisode = function (id) { return URLS.server.base + `/latestEpisode?show=${id}`; };
+  // login redirect is based on the URI where the login btn exists
   URLS.putio.login = `${URLS.putio.base}/oauth2/login?next=${encodeURIComponent(`${URLS.putio.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${encodeURIComponent(window.location.href)}`)}`;
   URLS.putio.redirect = `${URLS.server.base}/putio/authenticate/redirect`;
   URLS.putio.oauthBase = `${URLS.putio.base}/oauth2`;
