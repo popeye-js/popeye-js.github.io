@@ -85,6 +85,7 @@
   URLS.putio.filesGetStream = function (fileId) { return `${URLS.putio.base}/files/${fileId}/stream?oauth_token=${ACCESS_TOKEN}`; };
   // URLS.putio.filesGetStream = function (fileId) { return `${URLS.putio.base}/files/${fileId}/mp4/download?oauth_token=${ACCESS_TOKEN}`; };
   URLS.putio.accountInfo = `${URLS.putio.base}/account/info?oauth_token=${ACCESS_TOKEN}`;
+  URLS.putio.filesListGet = `${URLS.putio.base}/files/list?oauth_token=${ACCESS_TOKEN}`;
 
   var logInBtn = document.querySelector('#log-in-btn');
   if (logInBtn) {
@@ -163,18 +164,25 @@
           }
         }).then(function (data) {
           data = JSON.parse(data);
-          return data.transfer.id;
+          return data.transfer.name;
         });
       };
 
-      var getTransfer = function (id) {
+      getfiles = function(name){
         return xhr({
           method: 'get',
-          url: URLS.putio.transfersGet(id)
+          url: URLS.putio.filesListGet
         }).then(function (data) {
           data = JSON.parse(data);
-          return data.transfer.file_id;
-        });
+          var fileId = '';
+          for(var i=0; i<data.files.length; i++){
+            if(name.includes(data.files[i].name)){
+              fileId = data.files[i].id;
+              break;
+            }
+          }
+          return fileId;
+        }); 
       };
 
       var getFile = function (fileId) {
@@ -183,9 +191,16 @@
           url: URLS.putio.filesGet(fileId)
         }).then(function (data) {
           data = JSON.parse(data);
-          var player = document.querySelector('#results-player');
+          var playerContainer = document.querySelector('#results-player');
+
+          var player = document.createElement('video');
+          player.setAttribute('width', '400');
+          player.setAttribute('controls' , '');
+
           var source = document.createElement('source');
-          source.setAttribute('type', 'video/mp4')
+          source.setAttribute('type', 'video/mp4');
+
+          player.appendChild(source);
 
           if (data.file.file_type === 'VIDEO') {
             // player.poster(data.file.screenshot);
@@ -199,7 +214,9 @@
             // player.poster(data.file.screenshot); screenshot does not exist on folder
             // need to make a request on the video file to get screenshot
           }
-          player.appendChild(source);
+
+          playerContainer.innerHTML = '';
+          playerContainer.appendChild(player);
           return data.file.file_type;
         });
       };
@@ -211,7 +228,7 @@
       fetchEp()
         .then(displayEp)
         .then(addTransfer)
-        .then(getTransfer)
+        .then(getfiles)
         .then(getFile)
         .catch(handleErrors);
     }
