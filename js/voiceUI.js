@@ -134,6 +134,21 @@ var voiceUI = (function() {
     resultsListEl.innerHTML = poster + title + epMeta + epTitle + epDescription;
     resultsShow();
   }
+  
+  function addMovieInfo(info) {
+    resultsTermEl.textContent = info['voiceCommand'];
+
+    var poster = `<li>
+      <img src="${info.poster}">
+    </li>`;
+
+    var title = `<li> ${info.title} </li>`;
+    var meta = `<li> Year: ${info.year}, Runtime: ${info.runtime}  </li>`;
+    var plot = `<li> ${info.plot} </li>`;
+
+    resultsListEl.innerHTML = poster + title + meta + plot;
+    resultsShow();
+  }
 
   return {
     dropletShow: dropletShow,
@@ -143,6 +158,7 @@ var voiceUI = (function() {
     resultsUpdate: resultsUpdate,
     resultsClear: resultsClear,
     addEpInfo: addEpInfo,
+    addMovieInfo: addMovieInfo,
     listenStop: listenStop,
     listenStart: listenStart
   }

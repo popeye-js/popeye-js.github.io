@@ -75,6 +75,7 @@
   };
 
   URLS.server.latestEpisode = function (id) { return URLS.server.base + `/latestEpisode?show=${id}`; };
+  URLS.server.movie = function (name) { return URLS.server.base + `/movie?name=${name}`; };
   // login redirect is based on the URI where the login btn exists
   URLS.putio.login = `${URLS.putio.base}/oauth2/login?next=${encodeURIComponent(`${URLS.putio.base}/oauth2/authenticate?client_id=2801&response_type=token&redirect_uri=${encodeURIComponent(window.location.href)}`)}`;
   URLS.putio.redirect = `${URLS.server.base}/putio/authenticate/redirect`;
@@ -82,6 +83,7 @@
   URLS.putio.transfersAdd = `${URLS.putio.base}/transfers/add?oauth_token=${ACCESS_TOKEN}`;
   URLS.putio.transfersGet = function (id) { return `${URLS.putio.base}/transfers/${id}?oauth_token=${ACCESS_TOKEN}`; };
   URLS.putio.filesGet = function (fileId) { return `${URLS.putio.base}/files/${fileId}?oauth_token=${ACCESS_TOKEN}`; };
+  URLS.putio.filesParentGet = function (fileId) { return `${URLS.putio.base}/files/list?oauth_token=${ACCESS_TOKEN}&parent_id=${fileId}`; };
   URLS.putio.filesGetStream = function (fileId) { return `${URLS.putio.base}/files/${fileId}/stream?oauth_token=${ACCESS_TOKEN}`; };
   // URLS.putio.filesGetStream = function (fileId) { return `${URLS.putio.base}/files/${fileId}/mp4/download?oauth_token=${ACCESS_TOKEN}`; };
   URLS.putio.accountInfo = `${URLS.putio.base}/account/info?oauth_token=${ACCESS_TOKEN}`;
@@ -130,6 +132,104 @@
   var speechCommands = {
     'upload (the) movie *movie': function (movie) {
       console.log(`download ${movie}`);
+
+      var fetchMovie = function () {
+        return xhr({
+          method: 'get',
+          url: URLS.server.movie(movie)
+        }).then(function (data) {
+          data = JSON.parse(data);
+          
+          data.voiceCommand = 'upload (the) movie ' + decodeURI(movie);
+          voiceUI.addMovieInfo(data);
+          
+          return data;
+        });
+      };
+
+      var addTransfer = function (data) {
+        return xhr({
+          method: 'POST',
+          url: URLS.putio.transfersAdd,
+          data: {
+            url: data.magnetLink
+          }
+        }).then(function (data) {
+          data = JSON.parse(data);
+          if(data.status != "OK"){
+            throw new Error('Upload to put.io failed');
+          }
+        });
+      };
+
+      getfiles = function(){
+        return xhr({
+          method: 'get',
+          url: URLS.putio.filesListGet
+        }).then(function (data) {
+          data = JSON.parse(data);
+          var fileId = '';
+          for(var i=0; i<data.files.length; i++){
+            if(name.includes(data.files[i].name)){
+              fileId = data.files[i].id;
+              break;
+            }
+          }
+          // TODO use events in put.io api because it might not be uploaded 
+          // so quickly. Will have to wait until it is
+          // recent uploaded file's id
+          if(fileId == ''){
+            fileId = data.files[0].id;
+          }
+          return data.files[0].id;
+        }); 
+      };
+
+      var getFile = function (fileId) {
+        return xhr({
+          method: 'get',
+          url: URLS.putio.filesParentGet(fileId)
+        }).then(function (data) {
+          data = JSON.parse(data);
+          var playerContainer = document.querySelector('#results-player');
+
+          var player = document.createElement('video');
+          player.setAttribute('width', '400');
+          player.setAttribute('controls' , '');
+
+          var source = document.createElement('source');
+          source.setAttribute('type', 'video/mp4');
+
+          player.appendChild(source);
+
+          if(data.parent.file_type === 'VIDEO'){
+            source.setAttribute('src', URLS.putio.filesGetStream(fileId));
+          }
+
+          else if (data.parent.file_type === 'FOLDER') {
+
+            for(let i=0; i<data.files.length; i++){
+              if(data.files[i].file_type === 'VIDEO'){
+                fileId = data.files[i].id;
+                break;
+              }
+            }
+            source.setAttribute('src', URLS.putio.filesGetStream(fileId));
+          }
+
+          playerContainer.innerHTML = '';
+          playerContainer.appendChild(player);
+        });
+      };
+
+      var handleErrors = function (err) {
+        console.error(err);
+      };
+
+      fetchMovie().then(addTransfer)
+        .then(getfiles)
+        .then(getFile)
+        .catch(handleErrors);
     },
     'upload the latest episode of *show': function (show) {
       logCommand('Latest show: ' + show);
