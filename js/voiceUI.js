@@ -1,7 +1,7 @@
 var voiceUI = (function() {
-
   var dropletEl = document.querySelector('#droplet');
   var resultsEl = document.querySelector('#results');
+  var microphoneShadowEl = document.querySelector('#google-microphone-shadow');
   var resultsTermEl = resultsEl.querySelector('#results-term');
   var resultsListEl = resultsEl.querySelector('#results-list');
   var resultsCloseEl = resultsEl.querySelector('#results-close');
@@ -24,11 +24,11 @@ var voiceUI = (function() {
   }
 
   function listenStart() {
-    $("#listenShadow").addClass('listening')
+    microphoneShadowEl.classList.add('listening');
   }
 
   function listenStop() {
-    $("#listenShadow").removeClass('listening')
+    microphoneShadowEl.classList.remove('listening');
   }
 
   function resultsUpdate(newResults) {
@@ -161,13 +161,12 @@ var voiceUI = (function() {
     addMovieInfo: addMovieInfo,
     listenStop: listenStop,
     listenStart: listenStart
-  }
-
+  };
 }());
 
 var isPaused = true;
-var microphone = document.querySelector('.google-microphone');
-microphone.addEventListener('click', function(evt) {
+var microphoneEl = document.querySelector('#google-microphone');
+microphoneEl.addEventListener('click', function () {
   if (isPaused) {
     annyang.resume();
     voiceUI.listenStart();

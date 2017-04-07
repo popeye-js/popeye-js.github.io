@@ -22,8 +22,8 @@
           <h1 class="site-title"><a href="./">popeye</a></h1>
           <p class="log-in">
             <a class="btn log-in-btn" id="log-in-btn" href="https://api.put.io/v2/oauth2/login?next=https%3A%2F%2Fapi.put.io%2Fv2%2Foauth2%2Fauthenticate%3Fclient_id%3D2801%26response_type%3Dtoken%26redirect_uri%3Dhttps%3A%252F%252Fpopeye-js.github.io%3A7000%252F">
-                Log in to <strong>Put.io</strong>
-              </a>
+              Log in to <strong>Put.io</strong>
+            </a>
           </p>
           <p id="currUser" style="display:none">
           </p>
@@ -32,10 +32,12 @@
     </header>
     <main id="content" class="content">
 
-      <div class="google-microphone">
-        <div id='listenShadow' class="shadow">
-          <div class="gn">
-            <div class="mc"></div>
+      <div id="google-microphone-wrapper" class="google-microphone-wrapper">
+        <div id="google-microphone" class="google-microphone">
+          <div id="google-microphone-shadow" class="google-microphone-shadow">
+            <div class="gn">
+              <div class="mc"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -51,6 +53,7 @@
       <ol id="command-logs" class="command-logs"></ol>
     </main>
   </div>
+
   <script>
     (function (i, s, o, g, r, a, m) {
     i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
@@ -63,9 +66,9 @@
     ga('send', 'pageview');
 
   </script>
-</body>
 
-<script src="js/voiceUI.js" async defer></script>
-<script src="js/speech.js" async defer></script>
+  <script src="js/voiceUI.js" async defer></script>
+  <script src="js/speech.js" async defer></script>
+</body>
 
 </html>
